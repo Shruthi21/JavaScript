@@ -1,0 +1,1032 @@
+<canvas id="cm" width="900" height="439"></canvas>
+<script> 
+
+    var PlayerData = {
+        "Circle1": 5,
+        "Circle2": 5,
+        "Circle3": 5,
+        "Circle4": 5,
+        "Circle5": 5,
+        "Circle6": 5,
+        "Circle7": 5
+    };
+
+    var ComputerData = {
+        "Circle8": 5,
+        "Circle9": 5,
+        "Circle10": 5,
+        "Circle11": 5,
+        "Circle12": 5,
+        "Circle13": 5,
+        "Circle14": 5
+    };
+
+    var Player=0, Computer=0, turn=false; //turn = 0 means Players turn turn = 1 means Computers turn;
+    var text_title = "Hello! Welcome to Chennamane Board Game";
+
+    window.onload = function () {
+        canvas = document.getElementById('cm');
+        canvasContext = canvas.getContext('2d');
+
+        drawBoard();
+
+        canvas.addEventListener('mousemove',
+
+           function (evt) {
+
+                var mousePos = calculateMousePos(evt);
+                    if ((mousePos.x > 50 && mousePos.x < 850) && (mousePos.y > 50 && mousePos.y < 189)) {
+                        console.log("Players Area, X and y :" + mousePos.x + " " + mousePos.y);
+                    } else if (turn == true){
+                        console.log("You are in the computer area. Get out");   
+                        ComputerPlay();
+                        //drawBoard()
+                        turn = false;
+
+                        ClearText();
+                        text_title = "You are in the computer area. Get out";    
+                        DrawText();                        
+                                       
+                                                
+                        }
+                    
+                    if (turn == false) {
+
+                        ClearText();
+                        text_title = "Its your turn. Please click on Players area";    
+                        DrawText();                          
+
+                    } else if (turn == true) {
+
+                        ClearText();
+                        text_title = "Its computers turn. Do not click. Computer will Play";    
+                        DrawText();                          
+
+                    }
+
+                       
+                    
+
+        });
+
+        canvas.addEventListener('click',
+            function (evt) {                
+                var mouseClickPos = calculateMousePos(evt);
+                console.log("Click Positions are :"+ mouseClickPos.x + ' '+ mouseClickPos.y);
+                var circle= DetermineCircleFromPos(mouseClickPos.x,mouseClickPos.y)
+                if ((DeterminePlayer(circle) == "Player" ) && (turn == 0)) {
+                    Play(circle);
+                    //drawBoard();
+                    turn = true;
+
+                    ClearText();
+                    text_title = "It is Players Turn. Please click(Only in Players area) ";    
+                    DrawText();  
+                    
+
+
+
+                }else if ((turn == true ) && (DeterminePlayer(circle) == "Computer")) {
+
+                    
+                    ClearText();                     
+                    text_title = "You are Computers Turn. Dont click";                        
+                    DrawText();  
+                                    
+                //validation
+                } else if ((DeterminePlayer(circle) == "Computer" ) && (turn == false)) {
+                    
+                    ClearText();                     
+                    text_title = "Its Players Turn, dont click on the computers area";                        
+                    DrawText();                     
+
+                }else if ((DeterminePlayer(circle) == "Player" ) && (turn == true)) {
+                    
+                    ClearText();                     
+                    text_title = "Its Computers Turn, dont use mouse";                        
+                    DrawText();                     
+
+                }
+
+            })        
+  
+
+    }
+
+    function DrawText() {
+        canvasContext.fillStyle = "black"; 
+        canvasContext.textBaseline = 'middle';
+        canvasContext.font = "20px 'Montserrat'";
+        canvasContext.fillText(text_title, 194, 43); 
+    }   
+
+    function ClearText() {   
+        
+        canvasContext.fillStyle = "#73AD21"; 
+        canvasContext.textBaseline = 'middle';
+        canvasContext.font = "20px 'Montserrat'";
+        canvasContext.fillText(text_title, 194, 43);     
+        
+    }  
+
+
+    function drawBoard() {
+
+        // Main Rectangle
+        colorRect(0, 0, canvas.width, canvas.height, "#73AD21")
+
+
+        //Sub rectangle
+        colorRect(50, 50, 800, 139, "#555") //Player area
+        colorRect(50, 200, 800, 139, "#555") //Computer area
+
+
+        // Player Area: 7 circle and 5 pebbles for each Circle
+        colorCircle(110, 110, 50, "#90EE90")
+        DrawDynamicPebble(110, 110, 5, PlayerData["Circle1"], "red");
+        
+
+
+        colorCircle(220, 110, 50, "#90EE90")
+        DrawDynamicPebble(220, 110,5, PlayerData["Circle2"], "red")
+
+
+        colorCircle(330, 110, 50, "#90EE90") 
+        DrawDynamicPebble(330, 110, 5, PlayerData["Circle3"], "red")        
+ 
+
+        colorCircle(440, 110, 50, "#90EE90")
+        DrawDynamicPebble(440, 110, 5, PlayerData["Circle4"], "red")         
+
+
+        colorCircle(550, 110, 50, "#90EE90")
+        DrawDynamicPebble(550, 110, 5, PlayerData["Circle5"], "red")         
+
+     
+        colorCircle(660, 110, 50, "#90EE90")
+        DrawDynamicPebble(660, 110, 5, PlayerData["Circle6"], "red") 
+
+        colorCircle(770, 110, 50, "#90EE90")
+        DrawDynamicPebble(770, 110, 5, PlayerData["Circle7"], "red") 
+
+
+
+        //Computer Area: 7 circle and 5 pebbles for each Circle
+        colorCircle(110, 270, 50, "#90EE90")
+        DrawDynamicPebble(110,270, 5, ComputerData["Circle14"], "red")         
+
+
+        colorCircle(220, 270, 50, "#90EE90")
+        DrawDynamicPebble(220, 270, 5, ComputerData["Circle13"], "red") 
+
+        colorCircle(330, 270, 50, "#90EE90")
+        DrawDynamicPebble(330, 270, 5, ComputerData["Circle12"], "red") 
+
+        colorCircle(440, 270, 50, "#90EE90")
+        DrawDynamicPebble(440, 270, 5, ComputerData["Circle11"], "red") 
+
+        colorCircle(550, 270, 50, "#90EE90")
+        DrawDynamicPebble(550, 270, 5, ComputerData["Circle10"], "red")      
+
+        colorCircle(660, 270, 50, "#90EE90")
+        DrawDynamicPebble(660, 270, 5, ComputerData["Circle9"], "red") 
+
+        colorCircle(770, 270, 50, "#90EE90")
+        DrawDynamicPebble(770, 270, 5, ComputerData["Circle8"], "red") 
+
+        canvasContext.fillStyle = "red";
+        canvasContext.font = "30px Arial";
+        canvasContext.fillText("Player :" + Player, 25, 25);
+        canvasContext.fillText("Computer :" + Computer, 25, 369);
+
+
+        DrawText();
+
+
+
+    }
+
+
+    function colorRect(leftX, topY, width, height, drawColor) {
+        canvasContext.fillStyle = drawColor;
+        canvasContext.fillRect(leftX, topY, width, height);
+
+    }
+
+
+
+    function colorCircle(centerX, centerY, radius, drawColor) {
+        canvasContext.fillStyle = drawColor;
+        canvasContext.beginPath();
+        canvasContext.arc(centerX, centerY, radius, 0, 2 * Math.PI, true);
+        canvasContext.fill();
+    }
+
+
+    function colorPebble(centerX, centerY, radius, drawColor) {
+        canvasContext.fillStyle = drawColor;
+        canvasContext.beginPath();
+        canvasContext.arc(centerX, centerY, radius, 0, 2 * Math.PI, true);
+        canvasContext.fill();
+    }
+
+  
+    function calculateMousePos(evt) {
+        var rect = canvas.getBoundingClientRect();
+        var root = document.documentElement;
+        var mouseX = evt.clientX - rect.left - root.scrollLeft;
+        var mouseY = evt.clientY - rect.top - root.scrollTop;
+        return {
+            x: mouseX,
+            y: mouseY
+        };
+    }
+
+
+   
+
+
+   
+   function DrawDynamicPebble(x,y, raidus, num, color){
+
+    console.log("Start of the DrawDynamicPebble method");
+    console.log(num);
+
+    switch(num) {
+        case 0:
+            console.log("Do nothing");
+            break;
+
+        case 1:
+            colorPebble(x,y, raidus, color)
+            break;            
+        case 2:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            break;    
+
+        case 3:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            break;   
+
+
+        case 4:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)            
+            break;                               
+        
+
+        case 5:
+            console.log("Draw 5 pebbles");
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)                     
+            break;    
+
+
+        case 6:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)     
+            colorPebble(x+18, y, raidus, color)                            
+            break;  
+
+
+        case 7:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)               
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)                                                     
+            break;  
+
+
+        case 8:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)                                                                  
+            break;  
+
+
+        case 9:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color)                                                                
+            break;   
+
+        case 10:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color)                                                                
+            break;    
+
+        case 11:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)                                                                              
+            break;   
+
+        case 12:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)                                                                                         
+            break;     
+
+        case 13:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color)                                                                                                     
+            break;   
+
+        case 14:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y, raidus, color) 
+            break; 
+
+        case 15:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y+27, raidus, color) 
+            colorPebble(x-27, y-27, raidus, color) 
+            break;  
+
+        case 16:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y+27, raidus, color) 
+            colorPebble(x-27, y-27, raidus, color) 
+            colorPebble(x-27, y+27, raidus, color)
+            break;   
+
+        case 17:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y+27, raidus, color) 
+            colorPebble(x-27, y-27, raidus, color) 
+            colorPebble(x-27, y+27, raidus, color)
+            colorPebble(x+27, y-27, raidus, color)
+
+            break;   
+
+        case 18:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y+27, raidus, color) 
+            colorPebble(x-27, y-27, raidus, color) 
+            colorPebble(x-27, y+27, raidus, color)
+            colorPebble(x+27, y-27, raidus, color)
+            colorPebble(x+9, y+27, raidus, color)             
+            
+            break;  
+
+        case 19:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y+27, raidus, color) 
+            colorPebble(x-27, y-27, raidus, color) 
+            colorPebble(x-27, y+27, raidus, color)
+            colorPebble(x+27, y-27, raidus, color)
+            colorPebble(x+9, y+27, raidus, color)     
+            colorPebble(x-9, y+27, raidus, color)      
+            
+            break;  
+
+        case 20:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y+27, raidus, color) 
+            colorPebble(x-27, y-27, raidus, color) 
+            colorPebble(x-27, y+27, raidus, color)
+            colorPebble(x+27, y-27, raidus, color)
+            colorPebble(x+9, y+27, raidus, color)     
+            colorPebble(x-9, y+27, raidus, color)  
+            colorPebble(x-9, y-27, raidus, color)     
+            
+            break;     
+
+        case 21:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y+27, raidus, color) 
+            colorPebble(x-27, y-27, raidus, color) 
+            colorPebble(x-27, y+27, raidus, color)
+            colorPebble(x+27, y-27, raidus, color)
+            colorPebble(x+9, y+27, raidus, color)     
+            colorPebble(x-9, y+27, raidus, color)  
+            colorPebble(x-9, y-27, raidus, color)  
+            colorPebble(x+9, y-27, raidus, color)     
+            break;  
+
+        case 22:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y+27, raidus, color) 
+            colorPebble(x-27, y-27, raidus, color) 
+            colorPebble(x-27, y+27, raidus, color)
+            colorPebble(x+27, y-27, raidus, color)
+            colorPebble(x+9, y+27, raidus, color)     
+            colorPebble(x-9, y+27, raidus, color)  
+            colorPebble(x-9, y-27, raidus, color)  
+            colorPebble(x+9, y-27, raidus, color) 
+            colorPebble(x+18, y-27, raidus, color)      
+            break;  
+
+        case 23:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y+27, raidus, color) 
+            colorPebble(x-27, y-27, raidus, color) 
+            colorPebble(x-27, y+27, raidus, color)
+            colorPebble(x+27, y-27, raidus, color)
+            colorPebble(x+9, y+27, raidus, color)     
+            colorPebble(x-9, y+27, raidus, color)  
+            colorPebble(x-9, y-27, raidus, color)  
+            colorPebble(x+9, y-27, raidus, color) 
+            colorPebble(x+18, y-27, raidus, color)  
+            colorPebble(x+18, y+27, raidus, color)     
+            break;   
+
+        case 24:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y+27, raidus, color) 
+            colorPebble(x-27, y-27, raidus, color) 
+            colorPebble(x-27, y+27, raidus, color)
+            colorPebble(x+27, y-27, raidus, color)
+            colorPebble(x+9, y+27, raidus, color)     
+            colorPebble(x-9, y+27, raidus, color)  
+            colorPebble(x-9, y-27, raidus, color)  
+            colorPebble(x+9, y-27, raidus, color) 
+            colorPebble(x+18, y-27, raidus, color)  
+            colorPebble(x+18, y+27, raidus, color)   
+            colorPebble(x-18, y+27, raidus, color)   
+            break; 
+
+
+        case 24:
+            colorPebble(x,y, raidus, color)
+            colorPebble(x-9, y-9, raidus, color)
+            colorPebble(x+9, y+9, raidus, color)
+            colorPebble(x-9, y+9, raidus, color)     
+            colorPebble(x+9, y-9, raidus, color)  
+            colorPebble(x+18, y, raidus, color)    
+            colorPebble(x-18, y, raidus, color)
+            colorPebble(x, y+18, raidus, color)    
+            colorPebble(x, y-18, raidus, color) 
+            colorPebble(x+18, y-18, raidus, color) 
+            colorPebble(x+18, y+18, raidus, color)  
+            colorPebble(x-18, y+18, raidus, color)  
+            colorPebble(x-18, y-18, raidus, color) 
+            colorPebble(x+27, y+27, raidus, color) 
+            colorPebble(x-27, y-27, raidus, color) 
+            colorPebble(x-27, y+27, raidus, color)
+            colorPebble(x+27, y-27, raidus, color)
+            colorPebble(x+9, y+27, raidus, color)     
+            colorPebble(x-9, y+27, raidus, color)  
+            colorPebble(x-9, y-27, raidus, color)  
+            colorPebble(x+9, y-27, raidus, color) 
+            colorPebble(x+18, y-27, raidus, color)  
+            colorPebble(x+18, y+27, raidus, color)   
+            colorPebble(x-18, y+27, raidus, color)   
+            colorPebble(x-18, y-27, raidus, color) 
+            break;                                                                                                                                                                                                                 
+    }
+
+
+  
+    console.log("End of the DrawDynamicPebble method") 
+}
+
+
+function DetermineCircleFromPos(x,y) {
+
+if ((x>= 60 && x<= 160) && (y >= 60 && y <= 160)){
+    return "Circle1";        
+}
+
+if ((x>= 170 && x<= 270) && (y >= 60 && y <= 160)){
+    return "Circle2";        
+}  
+
+if ((x>= 280 && x<= 380) && (y >= 60 && y <= 160)){
+    return "Circle3";        
+}  
+
+if ((x>= 390 && x<= 490) && (y >= 60 && y <= 160)){
+    return "Circle4";        
+}   
+
+
+if ((x>= 500 && x<= 600) && (y >= 60 && y <= 160)){
+    return "Circle5";        
+}    
+
+if ((x>= 610 && x<= 710) && (y >= 60 && y <= 160)){
+    return "Circle6";        
+}  
+
+
+if ((x>= 720 && x<= 820) && (y >= 60 && y <= 160)){
+    return "Circle7";        
+}         
+
+
+if ((x>= 60 && x<= 160) && (y >= 220 && y <= 320)){
+    return "Circle14";        
+}    
+
+if ((x>= 170 && x<= 270) && (y >= 220 && y <= 320)){
+    return "Circle13";        
+}  
+
+if ((x>= 280 && x<= 380) && (y >= 220 && y <= 320)){
+    return "Circle12";        
+}  
+
+if ((x>= 390 && x<= 490) && (y >= 220 && y <= 320)){
+    return "Circle11";        
+}   
+
+
+if ((x>= 500 && x<= 600) && (y >= 220 && y <= 320)){
+    return "Circle10";        
+}    
+
+if ((x>= 610 && x<= 710) && (y >= 220 && y <= 320)){
+    return "Circle9";        
+}  
+
+
+if ((x>= 720 && x<= 820) && (y >= 220 && y <= 320)){
+    return "Circle8";        
+}    
+
+}
+
+
+
+
+    function DeterminePlayer(circle){
+        console.log(circle);
+        console.log(Player[circle]);
+        console.log(ComputerData[circle]);
+        console.log(typeof(PlayerData[circle]));
+        console.log(typeof(ComputerData[circle]));
+
+
+
+    if(typeof(PlayerData[circle]) == 'number'){
+        return "Player"
+    } else if (typeof(ComputerData[circle]) == 'number'){
+        return "Computer"
+    }    
+}
+
+
+function Play(circle){
+    
+    console.log(circle);
+    var local_circle = circle;
+    console.log(local_circle);
+    var CurrentPebble = PlayerData[circle];
+    console.log(CurrentPebble);
+    PlayerData[circle] = 0;
+    drawBoard();
+    
+
+    while ( CurrentPebble > 0 ){
+        local_circle = GetNextCircle(local_circle);
+        console.log("The Next circle is:"+local_circle);        
+        CurrentPebble--;
+        setTimeout(IncrementCircle(local_circle),3000000);
+        console.log("Current Pebble after decrement is :"+CurrentPebble);        
+        console.log(local_circle);
+
+        if (CurrentPebble==0){
+            console.log("The currentpebble is 0, check for the next circle")
+            
+            if (typeof(PlayerData[local_circle]) == 'number') {
+                local_circle = GetNextCircle(local_circle);
+                if  (PlayerData[local_circle]!=0){
+                    console.log("But the Next Pebble is not empty, hence the CurrentPebble is set to the pebble from next circle in Player area");
+                    
+                    //local_circle = GetNextCircle(local_circle);
+                    CurrentPebble=PlayerData[local_circle]
+                    PlayerData[local_circle] = 0;
+                    console.log("The Current pebble count is :"+CurrentPebble);
+                    
+                   
+                }else{
+                    console.log("As the pebble is 0, get the next circle to assign the points to Player and stop the game");
+                    local_circle = GetNextCircle(local_circle);
+                    console.log("Before Increment"+Player);
+                    if(!isNaN(PlayerData[local_circle])){
+                        Player = Player + PlayerData[local_circle];
+                    }
+                    
+                    console.log("Player Incremented"+Player);
+                    PlayerData[local_circle] = 0;
+                    
+                    console.log(Player,Computer);
+                    console.log(PlayerData,ComputerData);
+                    return;
+                    
+
+                }
+            }else if (typeof(ComputerData[local_circle]) == 'number'){
+                local_circle = GetNextCircle(local_circle);
+                if  (ComputerData[local_circle]!=0){
+                    console.log("But the Next Pebble is not emplty, hence the CurrentPebble is set to the pebble from next circle in Computer area");
+                    
+                    //local_circle = GetNextCircle(local_circle);
+                    CurrentPebble=ComputerData[local_circle]
+                    ComputerData[local_circle] = 0;                    
+                    console.log("The Current pebble count is :"+CurrentPebble);
+                    
+                    
+                }else{
+                    console.log("As the pebble is 0, get the next circle to assign the points to Computer and stop the game");
+                    local_circle = GetNextCircle(local_circle);
+                    if(!isNaN(ComputerData[local_circle])){
+                        Computer =  Computer + ComputerData[local_circle];
+                    }
+                    
+                    ComputerData[local_circle] = 0;
+                    console.log(Player,Computer);
+                    console.log(PlayerData,ComputerData);
+                    return;
+
+                }                
+
+
+            }         
+           
+     
+
+        }
+        
+    }
+   
+    console.log (PlayerData,ComputerData);
+    //drawBoard();
+
+}
+
+
+function GetNextCircle(circle){
+    console.log("Current Circle :"+circle);
+
+switch(circle) {
+   case "Circle1":
+       return "Circle14";
+
+   case "Circle2":
+       return "Circle1";
+
+
+   case "Circle3":
+       return "Circle2";
+
+   case "Circle4":
+       return "Circle3";
+
+   case "Circle5":
+       return "Circle4";
+
+   case "Circle6":
+       return "Circle5";   
+
+   case "Circle7":
+       return "Circle6";
+
+   case "Circle8":
+       return "Circle7";            
+
+   case "Circle9":
+       return "Circle8";     
+
+   case "Circle10":
+       return "Circle9";  
+
+   case "Circle11":
+       return "Circle10";    
+
+   case "Circle12":
+       return "Circle11";       
+
+   case "Circle13":
+       return "Circle12";   
+
+   case "Circle14":
+       return "Circle13"; 
+}
+
+
+}
+
+function IncrementCircle(circle){
+    console.log("I am in the increment");
+    console.log("Incremented Circle is :"+circle);
+    //"use strict";
+    console.log(typeof(PlayerData[circle]));
+    console.log(PlayerData[circle]);
+
+    console.log(typeof(ComputerData[circle]));
+    console.log(ComputerData[circle]);
+
+    if(typeof(PlayerData[circle]) == 'number'){
+        PlayerData[circle]++;
+    } else if (typeof(ComputerData[circle]) == 'number'){
+        ComputerData[circle]++;
+    }
+    console.log (PlayerData,ComputerData);
+    drawBoard();
+
+}  
+
+function generateRandomNumber(min , max) 
+{
+    return Math.floor(Math.random() * (max-min) + min) ;
+} 
+
+
+
+function ComputerPlay( ){
+    console.log("I am inthe computer Play area");
+    var local_circle, computerX, computerY, CurrentPebble=0;
+
+    while (typeof(local_circle) == 'undefined' && (CurrentPebble == 0)) {
+        computerX = generateRandomNumber(50,850); // Math.floor(Math.random() * 800);
+        computerY = generateRandomNumber(200,339); // Math.floor(Math.random() * 139);
+        local_circle= DetermineCircleFromPos(computerX,computerY);
+        console.log(computerX,computerY);
+        console.log("The circle is :"+local_circle);             
+        CurrentPebble = ComputerData[local_circle];
+        console.log("The pebble is :"+CurrentPebble);
+    }
+
+      
+    
+    
+    ComputerData[local_circle] = 0;    
+
+    while ( CurrentPebble > 0 ){
+        local_circle = GetNextCircle(local_circle);
+        console.log("The Next circle is:"+local_circle);        
+        CurrentPebble--;
+        setTimeout(IncrementCircle(local_circle),300000);
+        console.log("Current Pebble after decrement is :"+CurrentPebble);        
+        console.log(local_circle);
+
+        if (CurrentPebble==0){
+            console.log("The currentpebble is 0, check for the next circle")
+            
+            if (typeof(PlayerData[local_circle]) == 'number') {
+                local_circle = GetNextCircle(local_circle);
+                if  (PlayerData[local_circle]!=0){
+                    console.log("But the Next Pebble is not empty, hence the CurrentPebble is set to the pebble from next circle in Player area");
+                    
+                    //local_circle = GetNextCircle(local_circle);
+                    CurrentPebble=PlayerData[local_circle]
+                    PlayerData[local_circle] = 0;
+                    console.log("The Current pebble count is :"+CurrentPebble);
+                    
+                   
+                }else{
+                    console.log("As the pebble is 0, get the next circle to assign the points to Player and stop the game");
+                    local_circle = GetNextCircle(local_circle);
+                    if(!isNaN(PlayerData[local_circle])){
+                        Player = Player + PlayerData[local_circle];
+                    }
+                    
+                    PlayerData[local_circle] = 0;
+                    
+                    console.log(Player,Computer);
+                    console.log(PlayerData,ComputerData);
+                    return;
+                    
+
+                }
+            }else if (typeof(ComputerData[local_circle]) == 'number'){
+                local_circle = GetNextCircle(local_circle);
+                if  (ComputerData[local_circle]!=0){
+                    console.log("But the Next Pebble is not emplty, hence the CurrentPebble is set to the pebble from next circle in Computer area");
+                    
+                    //local_circle = GetNextCircle(local_circle);
+                    CurrentPebble=ComputerData[local_circle]
+                    ComputerData[local_circle] = 0;                    
+                    console.log("The Current pebble count is :"+CurrentPebble);
+                    
+                    
+                }else{
+                    console.log("As the pebble is 0, get the next circle to assign the points to Computer and stop the game");
+                    local_circle = GetNextCircle(local_circle);
+                    if(!isNaN(ComputerData[local_circle])){
+                        Computer = Computer + ComputerData[local_circle];
+
+                    }
+                    
+                    ComputerData[local_circle] = 0;
+                    console.log(Player,Computer);
+                    console.log(PlayerData,ComputerData);
+                    return;
+
+                }                
+
+
+            }         
+           
+     
+
+        }
+        
+    }
+   
+    console.log (PlayerData,ComputerData);
+    //drawBoard();
+
+}
+
+
+
+
+
+
+</script> 
